@@ -1,0 +1,31 @@
+{
+  "model": "typesafe/jev-1.13",
+  "state": {
+    "comment": "This product is total garbage, whoever made it should be fired."
+  },
+  "questions": {
+    "action": {
+      "type": "choice",
+      "instructions": "What action should moderation take?",
+      "criteria": {
+        "allow": "The comment is acceptable as-is.",
+        "review": "A human should review the comment.",
+        "block": "The comment should be removed."
+      }
+    },
+    "toxicity": {
+      "type": "score",
+      "instructions": "Rate how toxic the comment is.",
+      "criteria": [
+        "Not toxic",
+        "Mildly toxic",
+        "Toxic",
+        "Severely toxic"
+      ]
+    },
+    "targets_person": {
+      "type": "noul",
+      "instructions": "Does the comment attack a specific person?"
+    }
+  }
+}

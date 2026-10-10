@@ -19,4 +19,13 @@ export default defineSchema({
     source: v.optional(v.string()),
     userId: v.optional(v.string()),
   }),
+  entities: defineTable({
+    key: v.string(),
+    name: v.string(),
+    type: v.string(),
+    description: v.string(),
+    detailedDescription: v.optional(v.string()),
+    url: v.optional(v.string()),
+    aliases: v.array(v.string()),
+  }).index("by_key", ["key"]),
 });

@@ -3,7 +3,7 @@ import { experimental_evaluate, type Experimental_DecisionQuestion } from "ai";
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
-import { action, internalMutation, query } from "./_generated/server";
+import { type ActionCtx, action, internalMutation, query } from "./_generated/server";
 import {
   answersValidator,
   type DecisionAnswer,
@@ -23,11 +23,17 @@ type RawAnswer =
   | { type: "boolean"; probability: number }
   | { type: "refusal" };
 
-type EvaluationResult = {
+export type EvaluationResult = {
   id: string;
   model: string;
   answers: DecisionAnswers;
   usage: DecisionUsage;
+};
+
+export type EvaluationArgs = {
+  state: DecisionInput;
+  questions: Record<string, DecisionQuestion>;
+  source?: string;
 };
 
 function toEvaluationQuestions(
@@ -115,37 +121,42 @@ function normalizeUsage(
   };
 }
 
+export async function runEvaluation(
+  ctx: ActionCtx,
+  args: EvaluationArgs,
+): Promise<EvaluationResult> {
+  const model = convexGateway.evaluationModel(MODEL_ID);
+  const result = await experimental_evaluate({
+    model,
+    state: args.state,
+    questions: toEvaluationQuestions(args.questions),
+  });
+
+  const body = result.response.body;
+  const answers = normalizeAnswers(result.answers as unknown as Record<string, RawAnswer>, body);
+  const usage = normalizeUsage(result.usage, body);
+  const id = result.response.id ?? crypto.randomUUID();
+
+  await ctx.runMutation(internal.decisions.save, {
+    model: MODEL_ID,
+    state: args.state,
+    questions: args.questions,
+    answers,
+    usage,
+    gatewayId: id,
+    source: args.source,
+  });
+
+  return { id, model: MODEL_ID, answers, usage };
+}
+
 export const evaluate = action({
   args: {
     state: decisionInput,
     questions: v.record(v.string(), questionValidator),
     source: v.optional(v.string()),
   },
-  handler: async (ctx, args): Promise<EvaluationResult> => {
-    const model = convexGateway.evaluationModel(MODEL_ID);
-    const result = await experimental_evaluate({
-      model,
-      state: args.state,
-      questions: toEvaluationQuestions(args.questions),
-    });
-
-    const body = result.response.body;
-    const answers = normalizeAnswers(result.answers as unknown as Record<string, RawAnswer>, body);
-    const usage = normalizeUsage(result.usage, body);
-    const id = result.response.id ?? crypto.randomUUID();
-
-    await ctx.runMutation(internal.decisions.save, {
-      model: MODEL_ID,
-      state: args.state,
-      questions: args.questions,
-      answers,
-      usage,
-      gatewayId: id,
-      source: args.source,
-    });
-
-    return { id, model: MODEL_ID, answers, usage };
-  },
+  handler: async (ctx, args): Promise<EvaluationResult> => runEvaluation(ctx, args),
 });
 
 export const list = query({
