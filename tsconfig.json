@@ -1,0 +1,3 @@
+{
+  "extends": "@jev-usecase/config/tsconfig.base.json"
+}
