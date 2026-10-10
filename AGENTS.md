@@ -14,6 +14,23 @@ Package manager is **Bun** (`bun@1.4.2`). Task runner is **`vp`** (vite-plus).
 - `bun run check` — **`oxlint && oxfmt --write`** (direct binaries, not `vp check`); it rewrites files.
 - Run one workspace task: `vp run --filter <pkg> <script>` (e.g. `vp run --filter web build`).
 
+## Context7 library IDs
+
+Prefer these official, stack-specific documentation sources when querying Context7:
+
+- Convex: `/websites/convex_dev`
+- Convex Better Auth: `/websites/labs_convex_dev_better-auth`
+- TanStack Start (React): `/websites/tanstack_start_framework_react`
+- TanStack Router: `/tanstack/router`
+- AI SDK: `/websites/ai-sdk_dev`
+- OpenCode: `/anomalyco/opencode`
+- Context.dev: `/websites/context_dev`
+- TanStack AI: `/tanstack/ai`
+- PostHog: `/posthog/posthog.com`
+
+For library-specific questions or implementation details, use the Context7 MCP tools: call `resolve-library-id` to find an ID unless one is listed above, then call `query-docs` with that ID and a focused question. Query separate concepts separately.
+
+
 ## Gotchas
 
 - **No test suite exists.** There is no test runner, config, or `test` script despite `@testing-library/*` and `jsdom` devDeps. Do not assume `bun test` works.
