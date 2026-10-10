@@ -20,6 +20,8 @@
       "convex": "^1.45.0",
       "better-auth": "1.6.17",
       "@convex-dev/better-auth": "^0.12.5",
+      "@convex-dev/ai-sdk-provider": "^0.2.1",
+      "ai": "^7.0.105",
       "@types/react": "^19.2.18",
       "@types/react-dom": "^19.2.7"
     }
